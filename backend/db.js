@@ -37,7 +37,7 @@ db.serialize(() => {
     )
   `);
 
-  // Materials table 
+  // Materials table
   db.run(`
     CREATE TABLE IF NOT EXISTS materials (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,7 +52,7 @@ db.serialize(() => {
       views INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (category_id) REFERENCES categories(id),
-      FOREIGN KEY (university_id) REFERENCES university(id), 
+      FOREIGN KEY (university_id) REFERENCES universities(id),
       FOREIGN KEY (uploader_id) REFERENCES users(id)
     )
   `);
@@ -124,10 +124,8 @@ db.serialize(() => {
       return;
     }
     if (row.count === 0) {
-      db.run(
-        `INSERT INTO users (name, email, role, status, university) VALUES (?, ?, ?, ?, ?)`,
-        ['Administrator', 'admin@straightas.com', 'admin', 'approved', 'System']
-      );
+      db.run(`INSERT INTO users (name, email, role, status, university) VALUES (?, ?, ?, ?, ?)`, 
+        ['Administrator', 'admin@straightas.com', 'admin', 'approved', 'System']);
       console.log('Default admin created: admin@straightas.com');
     }
   });
