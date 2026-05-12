@@ -41,3 +41,63 @@ router.get('/:id', (req, res) => {
   });
 });
 
+// POST new user (educator registration)
+router.post('/', (req, res) => {
+  const { name, email, role, university } = req.body;
+  
+  if (!name || !email || !role) {
+    res.status(400).json({ error: 'Name, email, and role are required' });
+    return;
+  }
+  
+  const query = 'INSERT INTO users (name, email, role, status, university) VALUES (?, ?, ?, ?, ?)';
+  
+  db.run(query, [name, email, role, 'pending', university || null], function(err) {
+    if (err) {
+      if (err.message.includes('UNIQUE')) {
+        res.status(409).json({ error: 'Email already exists' });
+      } else {
+        console.error('Database error:', err);
+        res.status(500).json({ error: err.message });
+      }
+      return;
+    }
+    res.status(201).json({ id: this.lastID, name, email, role, status: 'pending', university: university });
+  });
+});
+
+// GET user's uploaded materials (for educators)
+router.get('/:id/materials', (req, res) => {
+  const { id } = req.params;
+  const query = `
+    SELECT m.*, c.name as category_name, un.name as university_name 
+    FROM materials m
+    LEFT JOIN categories c ON m.category_id = c.id
+    LEFT JOIN universities un ON m.university_id = un.id
+    WHERE m.uploader_id = ?
+  `;
+  
+  db.all(query, [id], (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
+  });
+});
+
+// UPDATE user status (approve/reject)
+router.put('/:id/status', (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  
+  db.run('UPDATE users SET status = ? WHERE id = ?', [status, id], function(err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json({ message: 'Status updated successfully' });
+  });
+});
+
+module.exports = router;
