@@ -219,12 +219,14 @@ async function handleLogin(e) {
   const msg = document.getElementById('loginMsg');
 
   try {
-    // Check if user exists by fetching all users and finding by email
-    const res = await fetch(`${API}/users`);
-    const users = await res.json();
-    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    const res = await fetch(`${API}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email }),
+    });
 
-    if (user) {
+    if (res.ok) {
+      const user = await res.json();
       if (user.status === 'pending') {
         msg.className = 'form-message error';
         msg.textContent = 'Your account is still pending approval. Please wait for admin review.';
@@ -235,18 +237,16 @@ async function handleLogin(e) {
         msg.textContent = 'Your registration was rejected. Contact the administrator.';
         return;
       }
-      // Login success
       localStorage.setItem('user', JSON.stringify(user));
       closeModals();
       checkAuth();
-      msg.className = 'form-message success';
-      msg.textContent = 'Login successful!';
     } else {
+      const data = await res.json();
       msg.className = 'form-message error';
-      msg.textContent = 'No account found with this email. Please register first.';
+      msg.textContent = data.error || 'No account found with this email. Please register first.';
     }
   } catch (err) {
-    // Demo mode
+    // Demo mode fallback
     const demoUser = { id: 1, name, email, role: 'admin', status: 'approved' };
     localStorage.setItem('user', JSON.stringify(demoUser));
     closeModals();
