@@ -173,12 +173,25 @@ function filterByUniversity(name) {
   renderMaterials();
 }
 
-function handleSearch() {
+async function handleSearch() {
   const input = document.getElementById('heroSearch');
-  if (input) {
-    searchQuery = input.value.trim();
+  if (!input) return;
+  searchQuery = input.value.trim();
+
+  if (!searchQuery) {
     renderMaterials();
+    return;
   }
+
+  try {
+    const res = await fetch(`${API}/materials?search=${encodeURIComponent(searchQuery)}`);
+    if (res.ok) {
+      allMaterials = await res.json();
+    }
+  } catch (e) {
+    // backend not running — filter existing allMaterials client-side
+  }
+  renderMaterials();
 }
 
 // Search on Enter key
