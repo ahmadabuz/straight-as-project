@@ -71,7 +71,10 @@ async function loadCategories() {
 
 async function loadMaterials() {
   try {
-    const res = await fetch(`${API}/materials`);
+    const url = searchQuery
+      ? `${API}/materials?search=${encodeURIComponent(searchQuery)}`
+      : `${API}/materials`;
+    const res = await fetch(url);
     allMaterials = await res.json();
     renderMaterials();
   } catch (e) {
