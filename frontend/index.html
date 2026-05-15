@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Straight A's — Jordanian IT Learning Hub. Access quality educational materials from Jordan's top universities.">
+  <title>Straight A's — Jordanian IT Learning Hub</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ========== NAVIGATION BAR (Task #2) ========== -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="navbar-logo">Straight <span>A's</span></a>
+    <button class="navbar-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="navbar-links" id="navLinks">
+      <a href="index.html" class="nav-link-ghost active">Home</a>
+      <a href="courses.html" class="nav-link-ghost">Courses</a>
+      <span id="navAuthBtns">
+        <button class="btn btn-teal" onclick="openModal('login')">→ Login</button>
+        <button class="btn btn-outline" onclick="openModal('register')">✦ Register</button>
+      </span>
+      <span id="navUserInfo" style="display:none;">
+        <span style="color:var(--gray-300);font-size:.85rem" id="navUserName"></span>
+        <button class="btn btn-outline" onclick="logout()" style="font-size:.8rem;padding:.35rem .75rem">Logout</button>
+      </span>
+    </div>
+  </nav>
+
+  <!-- ========== HERO SECTION ========== -->
+  <section class="hero">
+    <h1>Jordanian IT Learning Hub</h1>
+    <p>Access quality educational materials from Jordan's top universities</p>
+    <div class="search-box">
+      <input type="text" id="heroSearch" placeholder="Search for courses, materials, or topics...">
+      <button onclick="handleSearch()">Search</button>
+    </div>
+  </section>
+
+  <!-- ========== UNIVERSITY BROWSER ========== -->
+  <section class="universities-section">
+    <h2>Browse by University</h2>
+    <div class="university-grid" id="universityGrid">
+      <!-- Populated by JS -->
+    </div>
+  </section>
+
+  <!-- ========== MAIN CONTENT: Sidebar + Materials ========== -->
+  <div class="main-content">
+    <!-- Category Sidebar -->
+    <aside class="sidebar">
+      <h3>Categories</h3>
+      <ul id="categoryList">
+        <!-- Populated by JS -->
+      </ul>
+    </aside>
+
+    <!-- Materials Grid -->
+    <section class="materials-section">
+      <div class="materials-header">
+        <h2>Learning Materials</h2>
+        <span class="count" id="materialsCount"></span>
+      </div>
+      <div class="materials-grid" id="materialsGrid">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+  </div>
+
+  <!-- ========== LOGIN MODAL (Task #5) ========== -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModals()">×</button>
+      <h2>Login</h2>
+      <div class="form-message" id="loginMsg"></div>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginName">Name</label>
+          <input type="text" id="loginName" placeholder="Enter your name" required>
+        </div>
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="Enter your email" required>
+        </div>
+        <button type="submit" class="btn btn-teal">Login</button>
+      </form>
+      <p class="modal-switch">Are you an educator? <a href="#" onclick="switchModal('register')">Register here</a></p>
+    </div>
+  </div>
+
+  <!-- ========== REGISTER MODAL (Task #5) ========== -->
+  <div class="modal-overlay" id="registerModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModals()">×</button>
+      <h2>Educator Registration</h2>
+      <div class="form-message" id="registerMsg"></div>
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label for="regName">Name</label>
+          <input type="text" id="regName" placeholder="Enter your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="regEmail">Email</label>
+          <input type="email" id="regEmail" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="regUniversity">University</label>
+          <select id="regUniversity" required>
+            <option value="">Select your university</option>
+            <!-- Populated by JS -->
+          </select>
+        </div>
+        <button type="submit" class="btn btn-teal">Submit Registration</button>
+      </form>
+      <p class="modal-switch">Already have an account? <a href="#" onclick="switchModal('login')">Login here</a></p>
+    </div>
+  </div>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <p>© 2026 Straight A's — Jordanian IT Learning Hub. All rights reserved.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

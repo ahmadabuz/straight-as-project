@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse IT courses and learning materials organized by category and university.">
+  <title>Courses — Straight A's</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ========== NAVIGATION BAR ========== -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="navbar-logo">Straight <span>A's</span></a>
+    <button class="navbar-toggle" id="navToggle" aria-label="Menu">☰</button>
+    <div class="navbar-links" id="navLinks">
+      <a href="index.html" class="nav-link-ghost">Home</a>
+      <a href="courses.html" class="nav-link-ghost active">Courses</a>
+      <span id="navAuthBtns">
+        <button class="btn btn-teal" onclick="openModal('login')">→ Login</button>
+        <button class="btn btn-outline" onclick="openModal('register')">✦ Register</button>
+      </span>
+      <span id="navUserInfo" style="display:none;">
+        <span style="color:var(--gray-300);font-size:.85rem" id="navUserName"></span>
+        <button class="btn btn-outline" onclick="logout()" style="font-size:.8rem;padding:.35rem .75rem">Logout</button>
+      </span>
+    </div>
+  </nav>
+
+  <!-- ========== COURSE CONTENT PAGE (Task #8) ========== -->
+
+  <!-- Detail View (hidden by default, shown when clicking a material) -->
+  <div class="detail-page" id="detailPage" style="display:none;">
+    <a href="#" class="detail-back" onclick="showList(); return false;">← Back to courses</a>
+    <div class="detail-card">
+      <div class="video-container" id="detailVideo"></div>
+      <div class="detail-body">
+        <h1 id="detailTitle"></h1>
+        <div class="detail-badges" id="detailBadges"></div>
+        <div class="detail-info" id="detailInfo"></div>
+        <p class="detail-desc" id="detailDesc"></p>
+        <div class="detail-link" id="detailLink"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List View -->
+  <div id="listView">
+    <div class="main-content">
+      <!-- Category Sidebar -->
+      <aside class="sidebar">
+        <h3>Categories</h3>
+        <ul id="categoryList"></ul>
+      </aside>
+
+      <!-- Materials Grid -->
+      <section class="materials-section">
+        <div class="materials-header">
+          <h2>Learning Materials</h2>
+          <span class="count" id="materialsCount"></span>
+        </div>
+        <div class="materials-grid" id="materialsGrid"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ========== LOGIN MODAL ========== -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModals()">×</button>
+      <h2>Login</h2>
+      <div class="form-message" id="loginMsg"></div>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginName">Name</label>
+          <input type="text" id="loginName" placeholder="Enter your name" required>
+        </div>
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="Enter your email" required>
+        </div>
+        <button type="submit" class="btn btn-teal">Login</button>
+      </form>
+      <p class="modal-switch">Are you an educator? <a href="#" onclick="switchModal('register')">Register here</a></p>
+    </div>
+  </div>
+
+  <!-- ========== REGISTER MODAL ========== -->
+  <div class="modal-overlay" id="registerModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModals()">×</button>
+      <h2>Educator Registration</h2>
+      <div class="form-message" id="registerMsg"></div>
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label for="regName">Name</label>
+          <input type="text" id="regName" placeholder="Enter your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="regEmail">Email</label>
+          <input type="email" id="regEmail" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="regUniversity">University</label>
+          <select id="regUniversity" required>
+            <option value="">Select your university</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-teal">Submit Registration</button>
+      </form>
+      <p class="modal-switch">Already have an account? <a href="#" onclick="switchModal('login')">Login here</a></p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>© 2026 Straight A's — Jordanian IT Learning Hub. All rights reserved.</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Course page: handle detail view
+    function showDetail(id) {
+      const API = 'http://localhost:5000/api';
+      fetch(`${API}/materials/${id}`)
+        .then(r => r.json())
+        .then(m => {
+          document.getElementById('listView').style.display = 'none';
+          document.getElementById('detailPage').style.display = 'block';
+
+          document.getElementById('detailTitle').textContent = m.title;
+
+          // Video embed or link
+          const vc = document.getElementById('detailVideo');
+          if (m.url && m.url.includes('youtube.com')) {
+            const vid = m.url.match(/[?&]v=([^&]+)/);
+            if (vid) {
+              vc.innerHTML = `<iframe src="https://www.youtube.com/embed/${vid[1]}" allowfullscreen></iframe>`;
+            }
+          } else if (m.url) {
+            vc.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px;background:var(--gray-100);color:var(--gray-500);">
+              <span>📄 External Resource</span></div>`;
+          } else {
+            vc.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px;background:var(--gray-100);color:var(--gray-400);">No preview available</div>`;
+          }
+
+          // Badges
+          const badges = document.getElementById('detailBadges');
+          badges.innerHTML = `
+            <span class="badge badge-type">📹 ${m.type || 'video'}</span>
+            <span class="badge badge-category">${m.category_name || 'General'}</span>
+          `;
+
+          // Info row
+          const info = document.getElementById('detailInfo');
+          info.innerHTML = `
+            ${m.university_name ? `<span class="uni">🎓 ${m.university_name}</span>` : ''}
+            ${m.course_code ? `<span>📋 ${m.course_code}</span>` : ''}
+            <span>👁 ${m.views || 0} views</span>
+            ${m.uploader_name ? `<span>👤 ${m.uploader_name}</span>` : ''}
+          `;
+
+          document.getElementById('detailDesc').textContent = m.description || 'No description available.';
+
+          // External link
+          const link = document.getElementById('detailLink');
+          if (m.url) {
+            link.innerHTML = `<a href="${m.url}" target="_blank" class="btn btn-teal">Open Resource →</a>`;
+          } else {
+            link.innerHTML = '';
+          }
+        })
+        .catch(err => console.error('Error loading material:', err));
+    }
+
+    function showList() {
+      document.getElementById('listView').style.display = 'block';
+      document.getElementById('detailPage').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
