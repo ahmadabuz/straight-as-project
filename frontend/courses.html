@@ -121,6 +121,8 @@
     // Course page: handle detail view
     function showDetail(id) {
       const API = 'http://localhost:5000/api';
+      // increment view count
+      fetch(`${API}/materials/${id}/view`, { method: 'POST' }).catch(() => {});
       fetch(`${API}/materials/${id}`)
         .then(r => r.json())
         .then(m => {
