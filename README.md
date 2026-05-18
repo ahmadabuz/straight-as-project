@@ -68,7 +68,7 @@ backend/
 
 ### Contributors
 
-- @ahmadabuz --> Backend Development
+- ahmadabuz --> Backend Development
 - mahmoud04abdulaziz-wq --> Frontend Development
 - issa02-ai --> Desing & Testing
 
