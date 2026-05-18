@@ -35,24 +35,26 @@ A modern web platform for Jordanian university students to access IT learning ma
 
 ### Project Structure
 
+```bash
 frontend/
-├── index.html # Homepage with university/category browsing
-├── courses.html # Course listing and detail view
-├── styles.css # Global styles and responsive design
-├── app.js # Application logic and API integration
-└── README.md # Documentation
+├── index.html        # Homepage with university/category browsing
+├── courses.html      # Course listing and detail view
+├── styles.css        # Global styles and responsive design
+├── app.js            # Application logic and API integration
+└── README.md         # Documentation
 
 backend/
 ├── routes/
-│ └── admin.js
-│ └── categories.js
-│ └── materials.js
-│ └── recommendations.js
-│ └── universities.js
-│ └── users.js
+│   ├── admin.js
+│   ├── categories.js
+│   ├── materials.js
+│   ├── recommendations.js
+│   ├── universities.js
+│   └── users.js
 ├── db.js
 ├── package.json
-├── server.js
+└── server.js
+```
 
 
 
