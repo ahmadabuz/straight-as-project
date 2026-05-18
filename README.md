@@ -41,3 +41,32 @@ frontend/
 ├── styles.css # Global styles and responsive design
 ├── app.js # Application logic and API integration
 └── README.md # Documentation
+
+backend/
+├── routes/
+│ └── admin.js
+│ └── categories.js
+│ └── materials.js
+│ └── recommendations.js
+│ └── universities.js
+│ └── users.js
+├── db.js
+├── package.json
+├── server.js
+
+
+
+### API Endpoints Used
+
+- `POST /api/auth/login` - User authentication
+- `POST /api/users` - Educator registration
+- `GET /api/materials` - Fetch all materials
+- `GET /api/categories` - Fetch categories
+- `GET /api/universities` - Fetch universities
+
+### Contributors
+
+- ahmadabuz --> Backend Development
+- mahmoud04abdulaziz-wq --> Frontend Development
+- issa02-ai --> Desing & Testing
+
