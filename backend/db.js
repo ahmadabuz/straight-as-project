@@ -15,12 +15,13 @@ db.serialize(() => {
     )
   `);
 
-  // Users table (with university column)
+  // Users table (with password column)
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
       role TEXT CHECK(role IN ('educator', 'admin')) NOT NULL,
       status TEXT CHECK(status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
       university TEXT,
@@ -117,16 +118,16 @@ db.serialize(() => {
     }
   });
 
-  // Create default admin account
+  // Create default admin account (password: admin123)
   db.get("SELECT COUNT(*) as count FROM users WHERE role = 'admin'", (err, row) => {
     if (err) {
       console.error('Error checking admin:', err);
       return;
     }
     if (row.count === 0) {
-      db.run(`INSERT INTO users (name, email, role, status, university) VALUES (?, ?, ?, ?, ?)`, 
-        ['Administrator', 'admin@straightas.com', 'admin', 'approved', 'System']);
-      console.log('Default admin created: admin@straightas.com');
+      db.run(`INSERT INTO users (name, email, password, role, status, university) VALUES (?, ?, ?, ?, ?, ?)`, 
+        ['Administrator', 'admin@straightas.com', 'admin123', 'admin', 'approved', 'System']);
+      console.log('Default admin created: admin@straightas.com / password: admin123');
     }
   });
 });
