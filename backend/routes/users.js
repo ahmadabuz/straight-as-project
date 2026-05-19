@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// GET all users (with status included)
+// GET all users (with status included) - exclude passwords
 router.get('/', (req, res) => {
   const { role } = req.query;
   let query = 'SELECT id, name, email, role, status, university, created_at FROM users';
@@ -22,8 +22,7 @@ router.get('/', (req, res) => {
   });
 });
 
-
-// GET single user by ID
+// GET single user by ID - exclude password
 router.get('/:id', (req, res) => {
   const { id } = req.params;
   const query = 'SELECT id, name, email, role, status, university, created_at FROM users WHERE id = ?';
@@ -41,18 +40,19 @@ router.get('/:id', (req, res) => {
   });
 });
 
-// POST new user (educator registration)
+// POST new user (educator registration with password)
 router.post('/', (req, res) => {
-  const { name, email, role, university } = req.body;
+  const { name, email, password, role, university } = req.body;
   
-  if (!name || !email || !role) {
-    res.status(400).json({ error: 'Name, email, and role are required' });
+  if (!name || !email || !password || !role) {
+    res.status(400).json({ error: 'Name, email, password, and role are required' });
     return;
   }
   
-  const query = 'INSERT INTO users (name, email, role, status, university) VALUES (?, ?, ?, ?, ?)';
+  const status = role === 'admin' ? 'approved' : 'pending';
+  const query = 'INSERT INTO users (name, email, password, role, status, university) VALUES (?, ?, ?, ?, ?, ?)';
   
-  db.run(query, [name, email, role, 'pending', university || null], function(err) {
+  db.run(query, [name, email, password, role, status, university || null], function(err) {
     if (err) {
       if (err.message.includes('UNIQUE')) {
         res.status(409).json({ error: 'Email already exists' });
@@ -62,7 +62,15 @@ router.post('/', (req, res) => {
       }
       return;
     }
-    res.status(201).json({ id: this.lastID, name, email, role, status: 'pending', university: university });
+    res.status(201).json({ 
+      id: this.lastID, 
+      name, 
+      email, 
+      role, 
+      status: status, 
+      university: university,
+      message: status === 'pending' ? 'Registration pending admin approval' : 'Registration successful'
+    });
   });
 });
 
