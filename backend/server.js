@@ -8,6 +8,7 @@ const categoriesRoutes = require('./routes/categories');
 const recommendationsRoutes = require('./routes/recommendations');
 const adminRoutes = require('./routes/admin');
 const universitiesRoutes = require('./routes/universities');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = 5000;
@@ -24,14 +25,13 @@ app.use((req, res, next) => {
 });
 
 // API Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/materials', materialsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/universities', universitiesRoutes);
-
-
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -44,12 +44,14 @@ app.get('/', (req, res) => {
     name: 'Straight A\'s API',
     version: '1.0.0',
     endpoints: [
+      'POST /api/auth/login',
       'GET  /api/materials',
       'POST /api/materials',
       'GET  /api/materials/:id',
       'PUT  /api/materials/:id',
       'DELETE /api/materials/:id',
       'GET  /api/users',
+      'POST /api/users',
       'GET  /api/categories',
       'GET  /api/recommendations/:userId',
       'GET  /api/admin/requests',
@@ -61,7 +63,7 @@ app.get('/', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`\n Straight A's backend running on http://localhost:${PORT}`);
-  console.log(` API available at http://localhost:${PORT}/api/materials`);
-  console.log(` Health check: http://localhost:${PORT}/api/health\n`);
+  console.log(`\nStraight A's backend running on http://localhost:${PORT}`);
+  console.log(`Admin credentials: admin@straightas.com / password: admin123`);
+  console.log(`API available at http://localhost:${PORT}/api/materials\n`);
 });
