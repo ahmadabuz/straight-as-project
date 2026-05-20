@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Browse IT courses and learning materials organized by category and university.">
   <title>Courses — Straight A's</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-  <!-- ========== NAVIGATION BAR ========== -->
   <nav class="navbar" id="navbar">
     <a href="index.html" class="navbar-logo">Straight <span>A's</span></a>
     <button class="navbar-toggle" id="navToggle" aria-label="Menu">☰</button>
@@ -27,9 +26,7 @@
     </div>
   </nav>
 
-  <!-- ========== COURSE CONTENT PAGE (Task #8) ========== -->
-
-  <!-- Detail View (hidden by default, shown when clicking a material) -->
+  <!-- Detail View -->
   <div class="detail-page" id="detailPage" style="display:none;">
     <a href="#" class="detail-back" onclick="showList(); return false;">← Back to courses</a>
     <div class="detail-card">
@@ -47,13 +44,11 @@
   <!-- List View -->
   <div id="listView">
     <div class="main-content">
-      <!-- Category Sidebar -->
       <aside class="sidebar">
         <h3>Categories</h3>
         <ul id="categoryList"></ul>
       </aside>
 
-      <!-- Materials Grid -->
       <section class="materials-section">
         <div class="materials-header">
           <h2>Learning Materials</h2>
@@ -64,7 +59,7 @@
     </div>
   </div>
 
-  <!-- ========== LOGIN MODAL ========== -->
+  <!-- Login Modal -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal">
       <button class="modal-close" onclick="closeModals()">×</button>
@@ -72,20 +67,24 @@
       <div class="form-message" id="loginMsg"></div>
       <form id="loginForm" onsubmit="handleLogin(event)">
         <div class="form-group">
-          <label for="loginName">Name</label>
-          <input type="text" id="loginName" placeholder="Enter your name" required>
-        </div>
-        <div class="form-group">
           <label for="loginEmail">Email</label>
           <input type="email" id="loginEmail" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="password" id="loginPassword" placeholder="Enter your password" style="flex: 1;" required>
+            <button type="button" class="btn btn-outline" onclick="togglePassword('loginPassword', this)" style="padding: 0.7rem 1rem;">👁️</button>
+          </div>
         </div>
         <button type="submit" class="btn btn-teal">Login</button>
       </form>
       <p class="modal-switch">Are you an educator? <a href="#" onclick="switchModal('register')">Register here</a></p>
+      <p style="font-size: 0.75rem; text-align: center; margin-top: 1rem; color: var(--gray-400);">🔑 Demo Admin: admin@straightas.com / admin123</p>
     </div>
   </div>
 
-  <!-- ========== REGISTER MODAL ========== -->
+  <!-- Register Modal -->
   <div class="modal-overlay" id="registerModal">
     <div class="modal">
       <button class="modal-close" onclick="closeModals()">×</button>
@@ -99,6 +98,13 @@
         <div class="form-group">
           <label for="regEmail">Email</label>
           <input type="email" id="regEmail" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="regPassword">Password (min 4 characters)</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="password" id="regPassword" placeholder="Create a password" style="flex: 1;" required>
+            <button type="button" class="btn btn-outline" onclick="togglePassword('regPassword', this)" style="padding: 0.7rem 1rem;">👁️</button>
+          </div>
         </div>
         <div class="form-group">
           <label for="regUniversity">University</label>
@@ -116,13 +122,10 @@
     <p>© 2026 Straight A's — Jordanian IT Learning Hub. All rights reserved.</p>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="js/app.js"></script>
   <script>
-    // Course page: handle detail view
     function showDetail(id) {
       const API = 'http://localhost:5000/api';
-      // increment view count
-      fetch(`${API}/materials/${id}/view`, { method: 'POST' }).catch(() => {});
       fetch(`${API}/materials/${id}`)
         .then(r => r.json())
         .then(m => {
@@ -131,28 +134,26 @@
 
           document.getElementById('detailTitle').textContent = m.title;
 
-          // Video embed or link
           const vc = document.getElementById('detailVideo');
           if (m.url && m.url.includes('youtube.com')) {
             const vid = m.url.match(/[?&]v=([^&]+)/);
             if (vid) {
               vc.innerHTML = `<iframe src="https://www.youtube.com/embed/${vid[1]}" allowfullscreen></iframe>`;
+            } else {
+              vc.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px;background:var(--gray-100);color:var(--gray-500);"><span>📹 YouTube Video</span></div>`;
             }
           } else if (m.url) {
-            vc.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px;background:var(--gray-100);color:var(--gray-500);">
-              <span>📄 External Resource</span></div>`;
+            vc.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px;background:var(--gray-100);color:var(--gray-500);"><span>📄 External Resource</span></div>`;
           } else {
             vc.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:200px;background:var(--gray-100);color:var(--gray-400);">No preview available</div>`;
           }
 
-          // Badges
           const badges = document.getElementById('detailBadges');
           badges.innerHTML = `
-            <span class="badge badge-type">📹 ${m.type || 'video'}</span>
+            <span class="badge badge-type">${m.type === 'video' ? '📹' : '📄'} ${m.type || 'resource'}</span>
             <span class="badge badge-category">${m.category_name || 'General'}</span>
           `;
 
-          // Info row
           const info = document.getElementById('detailInfo');
           info.innerHTML = `
             ${m.university_name ? `<span class="uni">🎓 ${m.university_name}</span>` : ''}
@@ -163,7 +164,6 @@
 
           document.getElementById('detailDesc').textContent = m.description || 'No description available.';
 
-          // External link
           const link = document.getElementById('detailLink');
           if (m.url) {
             link.innerHTML = `<a href="${m.url}" target="_blank" class="btn btn-teal">Open Resource →</a>`;

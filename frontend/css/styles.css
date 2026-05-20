@@ -1,0 +1,55 @@
+/* Add to the end of your existing styles.css */
+
+/* Password toggle button styling */
+.btn-outline {
+  background: transparent;
+  color: var(--teal);
+  border: 1.5px solid var(--gray-300);
+}
+
+.btn-outline:hover {
+  border-color: var(--teal);
+  background: rgba(13,148,136,.08);
+  transform: translateY(-1px);
+}
+
+/* Form group with password toggle - ensure proper alignment */
+.form-group .password-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.form-group .password-wrapper input {
+  flex: 1;
+}
+
+.form-group .password-wrapper button {
+  padding: 0.7rem 1rem;
+  white-space: nowrap;
+}
+
+/* Modal improvements */
+.modal {
+  max-width: 450px;
+}
+
+.modal .btn-outline {
+  padding: 0.7rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* Demo credentials hint */
+.demo-hint {
+  font-size: 0.75rem;
+  text-align: center;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--gray-200);
+  color: var(--gray-400);
+}
+
+.demo-hint strong {
+  color: var(--teal);
+  font-weight: 600;
+}

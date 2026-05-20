@@ -22,6 +22,18 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNav();
 });
 
+// ========== PASSWORD TOGGLE FUNCTION ==========
+function togglePassword(inputId, button) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    button.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    button.textContent = '👁️';
+  }
+}
+
 // ========== DATA LOADING ==========
 async function loadUniversities() {
   try {
@@ -84,10 +96,6 @@ async function loadMaterials() {
       { id: 2, title: 'Data Structures & Algorithms', description: 'Comprehensive coverage of essential data structures including arrays, linked lists, trees, and graphs.', type: 'video', category_name: 'Data Structures & Algorithms', university_name: 'Jordan University of Science and Technology (JUST)', course_code: 'CS201', views: 2100, uploader_name: 'Prof. Sarah Ali', url: 'https://youtube.com/watch?v=example2' },
       { id: 3, title: 'Web Development with React', description: 'Modern web development using React, including hooks, state management, and component architecture.', type: 'video', category_name: 'Web Development', university_name: 'Princess Sumaya University for Technology (PSUT)', course_code: 'WEB301', views: 890, uploader_name: 'Dr. Ahmad Hassan', url: 'https://youtube.com/watch?v=example3' },
       { id: 4, title: 'Cybersecurity Fundamentals', description: 'Introduction to cybersecurity principles, encryption, network security, and ethical hacking basics.', type: 'video', category_name: 'Cybersecurity', university_name: 'University of Jordan (UJ)', course_code: 'SEC401', views: 1560, uploader_name: 'Prof. Sarah Ali', url: 'https://youtube.com/watch?v=example4' },
-      { id: 5, title: 'Database Design Principles', description: 'Learn relational database design, normalization, ER diagrams, and SQL query optimization.', type: 'document', category_name: 'Database Management', university_name: 'German Jordanian University (GJU)', course_code: 'DB201', views: 720, uploader_name: 'Dr. Ahmad Hassan' },
-      { id: 6, title: 'Introduction to Machine Learning', description: 'Fundamentals of supervised and unsupervised learning, regression, and neural networks.', type: 'slides', category_name: 'Artificial Intelligence', university_name: 'Jordan University of Science and Technology (JUST)', course_code: 'AI301', views: 980, uploader_name: 'Prof. Sarah Ali' },
-      { id: 7, title: 'Android App Development', description: 'Step-by-step guide to building Android applications using Kotlin and Jetpack Compose.', type: 'video', category_name: 'Software Engineering', university_name: 'Yarmouk University', course_code: 'MOB201', views: 650, uploader_name: 'Dr. Ahmad Hassan' },
-      { id: 8, title: 'Computer Networks Essentials', description: 'TCP/IP protocols, OSI model, routing, switching, and network troubleshooting.', type: 'exercise', category_name: 'Computer Networks', university_name: 'Hashemite University', course_code: 'NET301', views: 1100, uploader_name: 'Prof. Sarah Ali' },
     ];
     renderMaterials();
   }
@@ -147,20 +155,27 @@ function renderMaterials() {
   const typeIcons = { video: '📹', document: '📄', slides: '📊', exercise: '✏️' };
 
   grid.innerHTML = filtered.map(m => `
-    <div class="material-card" onclick="${typeof showDetail === 'function' ? `showDetail(${m.id})` : `window.location.href='courses.html'`}">
+    <div class="material-card" onclick="window.location.href='courses.html?id=${m.id}'">
       <div class="card-top">
         <span class="badge badge-type">${typeIcons[m.type] || '📹'} ${m.type || 'Video'}</span>
         <span class="badge badge-category">${m.category_name || 'General'}</span>
       </div>
-      <div class="card-title">${m.title}</div>
-      <div class="card-desc">${m.description || ''}</div>
+      <div class="card-title">${escapeHtml(m.title)}</div>
+      <div class="card-desc">${escapeHtml(m.description || '')}</div>
       <div class="card-meta">
         <span><span class="uni">${getAbbr(m.university_name || '')}</span> ${m.course_code || ''}</span>
         <span class="views">👁 ${(m.views || 0).toLocaleString()}</span>
       </div>
-      <div class="card-uploader">By ${m.uploader_name || 'Unknown'}</div>
+      <div class="card-uploader">By ${escapeHtml(m.uploader_name || 'Unknown')}</div>
     </div>
   `).join('');
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 // ========== FILTERING ==========
@@ -202,7 +217,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.activeElement?.id === 'heroSearch') handleSearch();
 });
 
-// ========== AUTHENTICATION (Task #5) ==========
+// ========== AUTHENTICATION (UPDATED WITH PASSWORD) ==========
 function openModal(type) {
   closeModals();
   document.getElementById(type + 'Modal').classList.add('open');
@@ -230,15 +245,21 @@ document.addEventListener('keydown', e => {
 
 async function handleLogin(e) {
   e.preventDefault();
-  const name = document.getElementById('loginName').value.trim();
   const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
   const msg = document.getElementById('loginMsg');
 
+  if (!email || !password) {
+    msg.className = 'form-message error';
+    msg.textContent = 'Please enter both email and password.';
+    return;
+  }
+
   try {
-    const res = await fetch(`${API}/login`, {
+    const res = await fetch(`${API}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email }),
+      body: JSON.stringify({ email, password }),
     });
 
     if (res.ok) {
@@ -256,17 +277,17 @@ async function handleLogin(e) {
       localStorage.setItem('user', JSON.stringify(user));
       closeModals();
       checkAuth();
+      document.getElementById('loginPassword').value = '';
+      loadMaterials();
     } else {
       const data = await res.json();
       msg.className = 'form-message error';
-      msg.textContent = data.error || 'No account found with this email. Please register first.';
+      msg.textContent = data.error || 'Invalid email or password.';
     }
   } catch (err) {
-    // Demo mode fallback
-    const demoUser = { id: 1, name, email, role: 'admin', status: 'approved' };
-    localStorage.setItem('user', JSON.stringify(demoUser));
-    closeModals();
-    checkAuth();
+    console.error('Login error:', err);
+    msg.className = 'form-message error';
+    msg.textContent = 'Cannot connect to server. Make sure backend is running.';
   }
 }
 
@@ -274,6 +295,7 @@ async function handleRegister(e) {
   e.preventDefault();
   const name = document.getElementById('regName').value.trim();
   const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value.trim();
   const university = document.getElementById('regUniversity').value;
   const msg = document.getElementById('registerMsg');
 
@@ -283,11 +305,17 @@ async function handleRegister(e) {
     return;
   }
 
+  if (!password || password.length < 4) {
+    msg.className = 'form-message error';
+    msg.textContent = 'Password must be at least 4 characters long.';
+    return;
+  }
+
   try {
     const res = await fetch(`${API}/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, role: 'educator', university }),
+      body: JSON.stringify({ name, email, password, role: 'educator', university }),
     });
     const data = await res.json();
 
@@ -295,20 +323,26 @@ async function handleRegister(e) {
       msg.className = 'form-message success';
       msg.textContent = 'Registration submitted! Your account will be reviewed by an admin.';
       document.getElementById('registerForm').reset();
+      document.getElementById('regPassword').value = '';
+      setTimeout(() => {
+        closeModals();
+        openModal('login');
+      }, 2000);
     } else {
       msg.className = 'form-message error';
       msg.textContent = data.error || 'Registration failed. Please try again.';
     }
   } catch (err) {
-    msg.className = 'form-message success';
-    msg.textContent = 'Registration submitted! (Demo mode — backend not running)';
-    document.getElementById('registerForm').reset();
+    console.error('Registration error:', err);
+    msg.className = 'form-message error';
+    msg.textContent = 'Cannot connect to server. Make sure backend is running.';
   }
 }
 
 function logout() {
   localStorage.removeItem('user');
   checkAuth();
+  loadMaterials();
 }
 
 function checkAuth() {
@@ -319,7 +353,11 @@ function checkAuth() {
 
   if (user) {
     if (authBtns) authBtns.style.display = 'none';
-    if (userInfo) { userInfo.style.display = 'inline-flex'; userInfo.style.gap = '8px'; userInfo.style.alignItems = 'center'; }
+    if (userInfo) { 
+      userInfo.style.display = 'inline-flex'; 
+      userInfo.style.gap = '8px'; 
+      userInfo.style.alignItems = 'center'; 
+    }
     if (userName) userName.textContent = `Welcome, ${user.name}`;
   } else {
     if (authBtns) authBtns.style.display = 'inline-flex';
@@ -342,3 +380,15 @@ function setupNav() {
     toggle.addEventListener('click', () => links.classList.toggle('open'));
   }
 }
+
+// Make functions globally available
+window.openModal = openModal;
+window.closeModals = closeModals;
+window.switchModal = switchModal;
+window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
+window.logout = logout;
+window.filterByCategory = filterByCategory;
+window.filterByUniversity = filterByUniversity;
+window.handleSearch = handleSearch;
+window.togglePassword = togglePassword;
